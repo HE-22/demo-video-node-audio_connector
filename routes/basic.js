@@ -1,7 +1,7 @@
 const Router = require('@koa/router');
 const http = new Router();
 
-const basicController = require('../controllers/basic-controller');
+const basicController = require('../basic-controller');
 
 http.get('/', basicController.getRoot);
 
