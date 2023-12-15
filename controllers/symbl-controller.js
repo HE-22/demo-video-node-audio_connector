@@ -43,28 +43,7 @@ exports.postSymblProcessing = async (ctx, next) => {
         let symblConnection;
         let socketUriForStream = socketURI + "/" + stream_id;
 
-        console.log("connecting to symbl for: ", stream_id);
-        try {
-          symblConnection = await symblSdk.startRealtimeRequest({
-            id: stream_id,
-            speaker: {
-              name: stream_name,
-            },
-            insightTypes: insightTypes,
-            config: {
-              meetingTitle: "My Test Meeting",
-              confidenceThreshold: 0.9,
-              timezoneOffset: 0, // Offset in minutes from UTC
-              languageCode: "en-GB",
-              sampleRateHertz: 16000,
-            },
-            handlers: handlers,
-          });
-          console.log("Connected to Symbl for: ", symblConnection);
-        } catch (e) {
-          console.log("Symbl connect error");
-          console.error(e);
-        }
+        
 
         console.log("before ws.get");
 
