@@ -24,16 +24,16 @@ exports.postSymblCall = (ctx) => {
 
 exports.postSymblProcessing = async (ctx, next) => {
   let opentok = ctx.opentok;
-  let otSession = ctx.openTokSession;
-  let token = otSession.generateToken();
+  let opentokSession = ctx.openTokSession;
+  let token = opentokSession.generateToken();
   let socketURI = `wss://${process.env.TUNNEL_DOMAIN}/socket`;
   let symblProcessor = ctx.symblProcessor;
-  let symblSdk = ctx.symblSdk;
-  let ws = ctx.ws;
-  let insightTypes = symblProcessor.setInsightTypes();
-  let handlers = symblProcessor.sethandlers();
+  // let symblSdk = ctx.symblSdk;
+  let websocket = ctx.ws;
+  // let insightTypes = symblProcessor.setInsightTypes();
+  // let handlers = symblProcessor.sethandlers();
 
-  opentok.listStreams(otSession.sessionId, function (error, streams) {
+  opentok.listStreams(opentokSession.sessionId, function (error, streams) {
     if (error) {
       console.log("Error:", error.message);
     } else {
@@ -43,19 +43,19 @@ exports.postSymblProcessing = async (ctx, next) => {
         let symblConnection;
         let socketUriForStream = socketURI + "/" + stream_id;
 
-        
-
         console.log("before ws.get");
 
         // send audio to python socket server instead of symbl
         // Make sure you have the WebSocket library imported
         const WebSocket = require("ws");
 
-        ws.get(`/socket/${stream_id}`, (ctx) => {
-          let connection = symblConnection;
+        websocket.get(`/socket/${stream_id}`, (ctx) => {
+          // let connection = symblConnection;
 
           // Create a WebSocket connection to the Python server
           let pythonServerUri = `ws://localhost:8765/socket/${stream_id}`;
+          console.log("pythonServerUri", pythonServerUri);
+
           let pythonServerSocket;
 
           try {
@@ -84,17 +84,18 @@ exports.postSymblProcessing = async (ctx, next) => {
                 console.log(event);
               }
             } catch (err) {
-              console.log("about to check if pythonServerSocket is open");
+              // console.log("about to check if pythonServerSocket is open");
               try {
                 if (
                   pythonServerSocket &&
                   pythonServerSocket.readyState === WebSocket.OPEN
                 ) {
+                  console.log("sending message");
                   pythonServerSocket.send(message);
                 } else {
-                  console.log(
-                    "pythonServerSocket is not open or not available"
-                  );
+                  // console.log(
+                  //   "pythonServerSocket is not open or not available"
+                  // );
                 }
               } catch (e) {
                 console.error("Failed to send message to Python server:", e);
@@ -112,7 +113,7 @@ exports.postSymblProcessing = async (ctx, next) => {
         });
 
         opentok.websocketConnect(
-          otSession.sessionId,
+          opentokSession.sessionId,
           token,
           socketUriForStream,
           { streams: [stream_id] },
@@ -128,6 +129,7 @@ exports.postSymblProcessing = async (ctx, next) => {
     }
   });
 
+  // TODO: 200 status set before complete, use promise.all()
   ctx.status = 200;
 };
 

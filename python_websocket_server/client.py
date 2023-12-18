@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 async def connect():
     """Connect to the websocket server and handle messages."""
-    uri = "ws://localhost:8765"
+    uri = "ws://localhost:8765/socket/fbf3c3d5-10e3-462a-8f88-7a9cfcd865dd"
     async with websockets.connect(uri) as websocket:
         logger.info("Connected to the server.")
         await websocket.send("Hello, server!")  # Send a test message to the server
